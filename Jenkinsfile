@@ -1,6 +1,6 @@
 pipeline {
 environment { // Declaration of environment variables
-DOCKER_ID = "esparacca" // replace this with your docker-id
+DOCKER_ID = "sparaccae" // replace this with your docker-id
 DOCKER_IMAGE = "datascientestapi"
 DOCKER_TAG = "v.${BUILD_ID}.0" // we will tag our images with the current build in order to increment the value by 1 with each new build
 }
@@ -10,7 +10,7 @@ stages {
     steps {
       script {
       sh '''
-        docker rm -f jenkins
+        docker rm -f jenkins || true
         docker build -t $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG .
       sleep 6
       '''
@@ -44,8 +44,9 @@ stages {
     steps {
       script {
         sh '''
-        docker login -u $DOCKER_ID -p $DOCKER_PASS
-        docker push $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+          echo "$DOCKER_PASS" | docker login -u "$DOCKER_ID" --password-stdin
+          docker push $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+          docker logout
         '''
       }
     }
