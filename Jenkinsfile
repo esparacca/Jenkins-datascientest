@@ -12,6 +12,7 @@ stages {
       sh '''
         docker rm -f jenkins || true
         docker build --no-cache --pull -t $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG .
+        docker tag $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG $DOCKER_ID/$DOCKER_IMAGE:latest
       sleep 6
       '''
       }
@@ -21,7 +22,7 @@ stages {
     steps {
       script {
       sh '''
-      docker run -d -p 80:80 --name jenkins $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+      docker run --pull=always -d -p 80:80 --name jenkins $DOCKER_ID/$DOCKER_IMAGE:latest
       sleep 10
       '''
       }
@@ -46,6 +47,7 @@ stages {
         sh '''
           echo "$DOCKER_PASS" | docker login -u "$DOCKER_ID" --password-stdin
           docker push $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+          docker push $DOCKER_ID/$DOCKER_IMAGE:latest
           docker logout
         '''
       }
